@@ -1,3 +1,5 @@
+# https://www.youtube.com/watch?v=aySurynUNAw&t=1930s&ab_channel=BleedAIAcademy
+
 import cv2
 import time
 import mediapipe as mp
