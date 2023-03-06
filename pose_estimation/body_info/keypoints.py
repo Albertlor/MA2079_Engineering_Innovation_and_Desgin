@@ -10,7 +10,7 @@ from utils import midpoint
 mp_pose = mp.solutions.pose
 
 # Setting up the Pose function.
-pose = mp_pose.Pose(static_image_mode=True, min_detection_confidence=0.3, model_complexity=2)
+pose = mp_pose.Pose(static_image_mode=True, min_detection_confidence=0.7, model_complexity=2)
 
 # Initializing mediapipe drawing class, useful for annotation.
 mp_drawing = mp.solutions.drawing_utils
@@ -57,51 +57,58 @@ def detectPose(frame, image, pose, display=True):
         mp_drawing.draw_landmarks(image=output_image, landmark_list=results.pose_landmarks,
                                   connections=mp_pose.POSE_CONNECTIONS)
         
-        # Iterate over the detected landmarks.
-        for landmark in results.pose_landmarks.landmark:
+        confidence_list = []
+        for lm in results.pose_landmarks.landmark:
+            if lm.visibility >= 0.7:
+                confidence_list.append(lm.visibility)
+
+        print(f'Confidence List: {confidence_list}')
+        
+        if len(confidence_list) == 33:
+            # Iterate over the detected landmarks.
+            for landmark in results.pose_landmarks.landmark:
+                # Append the landmark into the list.
+                landmarks.append((int(landmark.x * width), int(landmark.y * height),
+                                    (landmark.z * width)))
+                
+            shoulder = midpoint(landmarks[LEFT_SHOULDER], landmarks[RIGHT_SHOULDER])
+            hip = midpoint(landmarks[LEFT_HIP], landmarks[RIGHT_HIP])
+            knee = midpoint(landmarks[LEFT_KNEE], landmarks[RIGHT_KNEE])
             
-            # Append the landmark into the list.
-            landmarks.append((int(landmark.x * width), int(landmark.y * height),
-                                  (landmark.z * width)))
-            
-        shoulder = midpoint(landmarks[LEFT_SHOULDER], landmarks[RIGHT_SHOULDER])
-        hip = midpoint(landmarks[LEFT_HIP], landmarks[RIGHT_HIP])
-        knee = midpoint(landmarks[LEFT_KNEE], landmarks[RIGHT_KNEE])
-            
-        """
-        SHOULDER 3D COORDINATES
-        """
-        with open('./database/shoulder.json') as f1:
-            config1 = json.load(f1)
+            """
+            SHOULDER 3D COORDINATES
+            """
+            with open('./database/shoulder.json') as f1:
+                config1 = json.load(f1)
 
-        config1[f'SHOULDER_{frame}'] = shoulder
+            config1[f'SHOULDER_{frame}'] = shoulder
 
-        with open('./database/shoulder.json', 'w') as f1:
-            json.dump(config1, f1, indent=4)
+            with open('./database/shoulder.json', 'w') as f1:
+                json.dump(config1, f1, indent=4)
 
 
-        """
-        HIP 3D COORDINATES
-        """
-        with open('./database/hip.json') as f2:
-            config2 = json.load(f2)
+            """
+            HIP 3D COORDINATES
+            """
+            with open('./database/hip.json') as f2:
+                config2 = json.load(f2)
 
-        config2[f'HIP_{frame}'] = hip
+            config2[f'HIP_{frame}'] = hip
 
-        with open('./database/hip.json', 'w') as f2:
-            json.dump(config2, f2, indent=4)
+            with open('./database/hip.json', 'w') as f2:
+                json.dump(config2, f2, indent=4)
 
 
-        """
-        KNEE 3D COORDINATES
-        """
-        with open('./database/knee.json') as f3:
-            config3 = json.load(f3)
+            """
+            KNEE 3D COORDINATES
+            """
+            with open('./database/knee.json') as f3:
+                config3 = json.load(f3)
 
-        config3[f'KNEE_{frame}'] = knee
+            config3[f'KNEE_{frame}'] = knee
 
-        with open('./database/knee.json', 'w') as f3:
-            json.dump(config3, f3, indent=4)
+            with open('./database/knee.json', 'w') as f3:
+                json.dump(config3, f3, indent=4)
     
     # Check if the original input image and the resultant image are specified to be displayed.
     if display:

@@ -107,7 +107,7 @@ while True:
 
         except TypeError as e:
             print(e)
-            break
+            pass
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
