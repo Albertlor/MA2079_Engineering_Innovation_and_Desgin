@@ -6,7 +6,7 @@ import json
 import numpy as np
 
 from utils import magnitude
-from body_info.keypoints import Pose
+from body_info.pose import Pose
     
 
 # Initialize the VideoCapture object to read from the webcam.
